@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 
 import br.com.rabelo.controller.PersonController;
 import br.com.rabelo.data.vo.v1.PersonVO;
+import br.com.rabelo.exception.RequeiredObjectIsNullException;
 import br.com.rabelo.exception.ResourceNotFoundException;
 import br.com.rabelo.mapper.DozerMapper;
 import br.com.rabelo.model.Person;
@@ -22,7 +23,11 @@ public class PersonServices {
     
 
     public PersonVO create(PersonVO person) {
+    	
+    	if(person == null) throw new RequeiredObjectIsNullException();
+    	
     	var entity = DozerMapper.parseObject(person, Person.class);
+    	
     	var vo = DozerMapper.parseObject(repository.save(entity), PersonVO.class);
     	vo.add(linkTo(methodOn(PersonController.class).findById(vo.getKey())).withSelfRel());
         return vo;
@@ -43,6 +48,8 @@ public class PersonServices {
     }
 
     public PersonVO update(PersonVO person) {
+    	
+    	if(person == null) throw new RequeiredObjectIsNullException();
         var entity = repository.findById(person.getKey()).orElseThrow(() -> new ResourceNotFoundException("No records found for this ID"));
 
         entity.setFirstName(person.getFirstName());
